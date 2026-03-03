@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sakura Railways</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+body{ font-family:'Times New Roman', Times, serif; margin:0; background:white; }
+.navbar{ background:white; padding:20px 40px; border-bottom:2px solid #ffd6ea; }
+.nav-link{ font-size:22px; cursor:pointer; }
+.top-link{ font-size:18px;color:#444;text-decoration:none; cursor:pointer; }
+.top-link:hover{ color:#e8609a; text-decoration:underline; }
+.search-input{ border-radius:30px; border:1px solid #ffd6ea; padding:8px 20px; width:250px; }
+.search-input:focus{ outline:none; box-shadow:none; border-color:#ffd6ea; }
+.login-btn{ border:1px solid #ffd6ea; border-radius:20px; padding:6px 14px; background:white; cursor:pointer; }
+.login-btn:hover{ background:#ffeaf4; }
+.side-menu{ position:fixed; top:0; left:-260px; height:100%; width:260px; background:#fff0f6; border-right:1px solid #ffd6ea; padding:40px 20px; transition:0.3s ease; z-index:999; }
+.side-menu.active{ left:0; }
+.side-menu .close-btn{ font-size:28px; cursor:pointer; display:block; margin-bottom:30px; }
+.side-menu a{ display:block; margin-bottom:20px; color:#444; text-decoration:none; cursor:pointer; }
+.side-menu a:hover{ color:#e8609a; text-decoration:underline; }
+#home{ background:linear-gradient(160deg,#fff0f6,#ffeaf4); min-height:400px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; }
+#home h1{ font-family:'Pinyon Script', cursive; font-size:65px; margin:0; color:#333; }
+#home p#tagline{ font-size:20px; color:#e8a0b8; margin-top:10px; }
+#welcome-section{ background:white; padding:40px 20px; text-align:center; }
+#welcome-section p.cursive{ font-family:'Pinyon Script', cursive; font-size:28px; color:#e8609a; margin:0; }
+#welcome-section p.description{ color:#555; font-size:16px; max-width:700px; margin:20px auto 0 auto; line-height:1.5; }
+#fare{ display:none; padding:30px; text-align:center; }
+#fare .title-box{ margin:0 auto 20px auto; max-width:900px; padding-left:30px; }
+#fare .main-title{ font-family:'Pinyon Script', cursive; font-size:55px; font-weight:normal; color:#111; margin-bottom:20px; }
+#fare input{ width:40%; padding:8px; font-size:16px; border-radius:30px; border:1px solid #ffd6ea; text-align:center; margin-top:10px; outline:none; }
+#fare input:focus{ border-color:#ffd6ea; box-shadow:none; }
+#fare button{ margin-top:10px; padding:6px 14px; font-size:16px; border-radius:20px; background-color:#e8a0b8; border:none; color:white; cursor:pointer; }
+#fare button:hover{ background-color:#e8609a; }
+#fare .fare-table{ width:100%; max-width:900px; margin:20px auto 0 auto; border-collapse:collapse; font-size:18px; }
+#fare .fare-table th, #fare .fare-table td{ border:1px solid #ffeaf4; padding:12px; color:#444; }
+#fare .fare-table th{ background-color:#fff5f8; font-weight:normal; }
+#fare .fare-table tr:nth-child(even){ background-color:#fff8fb; }
+#fare .fare-table tr:hover{ background-color:#ffeaf4; transition:0.2s ease; }
+#fare .fare-footer{ font-size:14px; color:#e8a0b8; margin-top:20px; }
+.registration-container{ width:800px; margin:70px auto; border-radius:20px; padding:40px; background:white; box-shadow:0 4px 15px rgba(232,96,154,0.1); }
+.registration-container .cursive-title{ font-family:'Pinyon Script', cursive; font-size:32px; text-align:center; margin-bottom:20px; color:#e8609a; }
+.profile-box{ width:150px; height:150px; border-radius:50%; background:#fff0f6; margin:auto; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative; cursor:grab; }
+.profile-box img{ width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+.submit-btn{ border-radius:20px; font-size:18px; background:#e8609a !important; border:none !important; }
+#message{ font-weight:500; color:#e8609a; }
+#schedule{ display:none; padding:20px; background:#fff8fb; overflow-x:auto; scroll-snap-type:x mandatory; }
+#schedule .container-wrapper{ display:flex; gap:30px; padding:40px; flex-wrap:nowrap; min-width:800px; }
+#schedule .board, #schedule .calendar{ scroll-snap-align:start; background:white; border-radius:20px; box-shadow:0 10px 30px rgba(232,96,154,0.08); }
+#schedule .board{ flex:3; min-width:700px; padding:50px; }
+#schedule .title{ font-family:'Pinyon Script', cursive; font-size:70px; margin-bottom:40px; color:#333; }
+#schedule .table-header{ display:grid; grid-template-columns:120px 2fr 120px; border-bottom:1px solid #ffd6ea; padding-bottom:15px; font-weight:bold; letter-spacing:1px; }
+#schedule .row-item{ display:grid; grid-template-columns:120px 2fr 120px; padding:15px 0; border-bottom:1px solid #ffeaf4; font-size:16px; }
+#schedule .status{ text-align:right; color:#e8609a; }
+#schedule .calendar{ flex:1; min-width:250px; padding:20px; display:flex; flex-direction:column; align-items:center; }
+#schedule .calendar-header{ display:flex; justify-content:space-between; width:100%; margin-bottom:10px; font-weight:bold; font-size:14px; }
+#schedule .calendar-header button{ background:none; border:none; font-size:16px; cursor:pointer; color:#e8609a; }
+#schedule .calendar table{ width:100%; border-collapse:collapse; text-align:center; font-size:12px; }
+#schedule .calendar th, #schedule .calendar td{ padding:5px; }
+#schedule .calendar td:hover{ background:#ffeaf4; border-radius:5px; cursor:pointer; }
+#map-section{ display:none; padding:40px 20px; text-align:center; background:white; border-top:1px solid #ffeaf4; }
+#map-section .map-title{ font-family:'Pinyon Script', cursive; font-size:48px; color:#333; margin-bottom:8px; }
+#map-section .map-sub{ color:#e8a0b8; font-size:15px; margin-bottom:24px; letter-spacing:1px; }
+#map-section iframe{ width:95%; max-width:1100px; height:580px; border-radius:20px; box-shadow:0 10px 30px rgba(232,96,154,0.10); border:1px solid #ffd6ea; }
+#booking{ display:none; padding:50px 20px; background:#fff8fb; }
+#booking .booking-title{ font-family:'Pinyon Script', cursive; font-size:55px; color:#333; text-align:center; margin-bottom:8px; }
+#booking .booking-sub{ text-align:center; color:#e8a0b8; font-size:15px; letter-spacing:1px; margin-bottom:32px; }
+#booking .booking-card{ max-width:680px; margin:0 auto; background:white; border-radius:20px; padding:40px; box-shadow:0 8px 30px rgba(232,96,154,0.10); border:1px solid #ffeaf4; }
+#booking label{ color:#555; font-size:15px; display:block; margin-bottom:6px; }
+#booking select, #booking input[type=date], #booking input[type=number]{ width:100%; padding:10px 16px; font-size:15px; border-radius:30px; border:1px solid #ffd6ea; outline:none; background:white; margin-bottom:18px; color:#444; font-family:'Times New Roman',Times,serif; }
+#booking select:focus, #booking input:focus{ border-color:#e8a0b8; }
+#booking .fare-preview{ background:#fff0f6; border-radius:14px; padding:18px 24px; margin:10px 0 20px; font-size:16px; color:#e8609a; text-align:center; min-height:52px; }
+#booking .book-btn{ width:100%; padding:12px; font-size:18px; border-radius:30px; background:#e8609a; border:none; color:white; cursor:pointer; letter-spacing:1px; }
+#booking .book-btn:hover{ background:#e8a0b8; }
+#booking .book-note{ font-size:13px; color:#e8a0b8; text-align:center; margin-top:14px; }
+#booking .passenger-row{ display:flex; gap:16px; }
+#booking .passenger-row > div{ flex:1; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+<div class="container-fluid d-flex align-items-center">
+    <a class="nav-link me-4" onclick="toggleMenu()">=</a>
+    <form class="me-4"><input class="search-input" type="text" placeholder="検索..."></form>
+    <div class="d-flex justify-content-center align-items-center gap-4 flex-grow-1">
+        <a class="top-link" id="homeLink" onclick="showSection('home')">ホーム</a>
+        <a class="top-link" id="fareLink" onclick="showSection('fare')">運賃表</a>
+        <a class="top-link" id="scheduleLink" onclick="showSection('schedule')">スケジュール</a>
+        <a class="top-link" id="bookingLink" onclick="showSection('booking')">Booking</a>
+    </div>
+    <button class="login-btn ms-3" id="loginBtn" onclick="showLogin()"><i class="bi bi-person"></i> ログイン</button>
+    <button class="login-btn ms-2" id="langBtn" onclick="toggleLanguage()">EN</button>
+</div>
+</nav>
+
+<div class="side-menu" id="menu">
+    <span class="close-btn" onclick="toggleMenu()">×</span>
+    <a onclick="comingSoon()">ヘルプ</a>
+    <a onclick="comingSoon()">お問い合わせ</a>
+    <a onclick="comingSoon()">会社情報</a>
+</div>
+
+<div id="home">
+    <h1>Sakura Railways</h1>
+    <p id="tagline">さくら鉄道 – where every journey blooms</p>
+</div>
+
+<div id="welcome-section">
+    <p class="cursive" id="welcomeTitle">Welcome to Sakura Railways</p>
+    <p class="description" id="welcomeDesc">快適さと配慮を重視したデザインで、あらゆる旅行が特別なものになります。!</p>
+</div>
+
+<div id="fare">
+    <div class="title-box">
+        <div class="main-title">Fare Matrix</div>
+    </div>
+    <input type="text" id="fareInput" placeholder="目的地を入力">
+    <table class="fare-table" id="fareTable">
+        <thead>
+            <tr>
+                <th id="routeHeader">ルート</th>
+                <th id="fareHeader">運賃 (¥)</th>
+                <th id="studentHeader">学生割引 (¥)</th>
+                <th id="pwdHeader">PWD割引 (¥)</th>
+            </tr>
+        </thead>
+        <tbody id="fareOutput"></tbody>
+    </table>
+    <button class="btn" id="checkFareBtn" onclick="showFare()">運賃を確認</button>
+    <div class="fare-footer" id="fareFooter">*価格は目安です。</div>
+</div>
+
+<div id="schedule">
+    <div class="container-wrapper">
+        <div class="board">
+            <div class="title">Station Schedule</div>
+            <div class="table-header">
+                <div>Depart</div>
+                <div>Route</div>
+                <div style="text-align:right;">Status</div>
+            </div>
+            <div class="row-item"><div>07:30</div><div>東京→京都 | Tokyo → Kyoto</div><div class="status">Boarding</div></div>
+            <div class="row-item"><div>08:15</div><div>大阪→広島 | Osaka → Hiroshima</div><div class="status">Open</div></div>
+            <div class="row-item"><div>09:00</div><div>京都→奈良 | Kyoto → Nara</div><div class="status">On Time</div></div>
+            <div class="row-item"><div>10:20</div><div>東京→大阪 | Tokyo → Osaka</div><div class="status">Delayed</div></div>
+            <div class="row-item"><div>11:45</div><div>北海道→東京 | Hokkaido → Tokyo</div><div class="status">Open</div></div>
+        </div>
+        <div class="calendar">
+            <div class="calendar-header">
+                <button id="prevMonth">&lt;</button>
+                <div id="monthYear"></div>
+                <button id="nextMonth">&gt;</button>
+            </div>
+            <table id="calendarTable"></table>
+        </div>
+    </div>
+</div>
+
+<div id="map-section">
+    <div class="map-title">Station Map</div>
+    <div class="map-sub">Tokyo Station &mdash; JR East</div>
+    <iframe
+        src="https://www.openstreetmap.org/export/embed.html?bbox=139.7571%2C35.6790%2C139.7731%2C35.6870&layer=mapnik&marker=35.6812%2C139.7671"
+        allowfullscreen
+        loading="lazy">
+    </iframe>
+</div>
+
+<div id="booking">
+    <div class="booking-title">Book a Journey</div>
+    <div class="booking-sub">さくら鉄道でご旅行をご予約ください</div>
+    <div class="booking-card">
+        <div>
+            <label id="pickupLabel">Pickup Station</label>
+            <select id="pickupSelect" onchange="calcBookingFare()">
+                <option value="">-- Select pickup station --</option>
+                <option value="東京">東京 (Tokyo)</option>
+                <option value="大阪">大阪 (Osaka)</option>
+                <option value="京都">京都 (Kyoto)</option>
+                <option value="北海道">北海道 (Hokkaido)</option>
+            </select>
+        </div>
+        <div>
+            <label id="dropoffLabel">Drop-off Station</label>
+            <select id="dropoffSelect" onchange="calcBookingFare()">
+                <option value="">-- Select drop-off station --</option>
+                <option value="京都">京都 (Kyoto)</option>
+                <option value="広島">広島 (Hiroshima)</option>
+                <option value="奈良">奈良 (Nara)</option>
+                <option value="大阪">大阪 (Osaka)</option>
+                <option value="東京">東京 (Tokyo)</option>
+                <option value="北海道">北海道 (Hokkaido)</option>
+            </select>
+        </div>
+        <div>
+            <label id="dateLabel">Travel Date</label>
+            <input type="date" id="travelDate">
+        </div>
+        <div class="passenger-row">
+            <div>
+                <label id="passLabel">Passengers</label>
+                <input type="number" id="numPassengers" min="1" max="10" value="1" onchange="calcBookingFare()">
+            </div>
+            <div>
+                <label id="discountLabel">Discount Type</label>
+                <select id="discountType" onchange="calcBookingFare()">
+                    <option value="none" id="discNone">None</option>
+                    <option value="student" id="discStudent">Student (20% off)</option>
+                    <option value="pwd" id="discPwd">PWD (50% off)</option>
+                </select>
+            </div>
+        </div>
+        <div class="fare-preview" id="farePreview">Select pickup and drop-off to see fare estimate.</div>
+        <button class="book-btn" id="bookBtn" onclick="confirmBooking()">Book Now</button>
+        <div class="book-note" id="bookNote">*All fares include tax. Subject to availability.</div>
+    </div>
+</div>
+
+<div class="modal fade" id="loginModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content" style="border-radius:20px;border:1px solid #ffd6ea;">
+<div class="modal-header" style="border-bottom:1px solid #ffeaf4;">
+    <h5 class="modal-title" id="modalTitle" style="font-family:'Pinyon Script',cursive;color:#e8609a;font-size:26px;">アカウント作成 / ログイン</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+    <div class="registration-container">
+        <div class="cursive-title" id="modalCursive">アカウント作成</div>
+        <div class="text-center mt-2">
+            <div class="profile-box mb-3" id="profilePreview"><span style="color:#e8a0b8;font-size:13px;">プロフィール</span></div>
+            <input type="file" id="profileInput" class="form-control w-50 mx-auto mb-4">
+        </div>
+        <form id="registerForm">
+            <input type="text" class="form-control mb-2" placeholder="名" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <input type="text" class="form-control mb-2" placeholder="姓" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <input type="number" class="form-control mb-2" placeholder="年齢" id="age" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <input type="text" class="form-control mb-2" placeholder="連絡先番号" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <input type="email" class="form-control mb-2" placeholder="メール" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <input type="text" class="form-control mb-2" placeholder="ユーザー名" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <input type="password" class="form-control mb-2" placeholder="パスワード" required style="border-radius:20px;border:1px solid #ffd6ea;">
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="terms" style="border-color:#ffd6ea;">
+                <label class="form-check-label" style="color:#555;">利用規約に同意します</label>
+            </div>
+            <button type="submit" class="btn w-100 submit-btn" style="background:#e8609a;color:white;">アカウント作成</button>
+        </form>
+        <div id="message" class="mt-2 text-center"></div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content" style="border-radius:20px;border:1px solid #ffd6ea;">
+<div class="modal-header" style="border-bottom:1px solid #ffeaf4;background:#fff5f8;border-radius:20px 20px 0 0;">
+    <h5 class="modal-title" style="font-family:'Pinyon Script',cursive;font-size:28px;color:#e8609a;">Booking Confirmation</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body" style="padding:28px;">
+    <div id="confirmDetails"></div>
+</div>
+<div class="modal-footer" style="border-top:1px solid #ffeaf4;">
+    <button class="btn" style="border-radius:20px;background:#e8609a;border:none;color:white;padding:8px 24px;" data-bs-dismiss="modal">Confirm Booking</button>
+    <button class="btn" style="border-radius:20px;border:1px solid #ffd6ea;color:#e8609a;" data-bs-dismiss="modal">Cancel</button>
+</div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let lang='ja';
+const fares = {
+    "東京→京都": { ja: "東京→京都", en: "Tokyo → Kyoto", price: 450 },
+    "大阪→広島": { ja: "大阪→広島", en: "Osaka → Hiroshima", price: 480 },
+    "京都→奈良": { ja: "京都→奈良", en: "Kyoto → Nara", price: 400 },
+    "東京→大阪": { ja: "東京→大阪", en: "Tokyo → Osaka", price: 500 },
+    "北海道→東京": { ja: "北海道→東京", en: "Hokkaido → Tokyo", price: 550 }
+};
+
+function toggleLanguage(){
+    const isJa = lang==='ja';
+    document.getElementById('homeLink').textContent = isJa?'Home':'ホーム';
+    document.getElementById('fareLink').textContent = isJa?'Fare Matrix':'運賃表';
+    document.getElementById('scheduleLink').textContent = isJa?'Schedule':'スケジュール';
+    document.getElementById('bookingLink').textContent = isJa?'Booking':'予約';
+    document.getElementById('loginBtn').innerHTML='<i class="bi bi-person"></i> '+(isJa?'Login':'ログイン');
+    document.getElementById('langBtn').textContent = isJa?'JP':'EN';
+    document.getElementById('modalTitle').textContent = isJa?'Create Account / Login':'アカウント作成 / ログイン';
+    document.getElementById('modalCursive').textContent = isJa?'Create Account':'アカウント作成';
+    document.getElementById('fareInput').placeholder = isJa?'Enter destination':'目的地を入力';
+    document.getElementById('routeHeader').textContent = isJa?'Route':'ルート';
+    document.getElementById('fareHeader').textContent = isJa?'Fare (¥)':'運賃 (¥)';
+    document.getElementById('studentHeader').textContent = isJa?'Student Fare (¥)':'学生割引 (¥)';
+    document.getElementById('pwdHeader').textContent = isJa?'PWD Fare (¥)':'PWD割引 (¥)';
+    document.getElementById('checkFareBtn').textContent = isJa?'Check Fare':'運賃を確認';
+    document.getElementById('fareFooter').textContent = isJa?'*Fares are approximate.':'*価格は目安です。';
+    document.getElementById('welcomeDesc').textContent = isJa
+        ? "Designed for comfort and care, to make every trip feel special!"
+        : "快適さと配慮を重視したデザインで、あらゆる旅行が特別なものになります。!";
+    document.getElementById('pickupLabel').textContent = isJa?'Pickup Station':'乗車駅';
+    document.getElementById('dropoffLabel').textContent = isJa?'Drop-off Station':'降車駅';
+    document.getElementById('dateLabel').textContent = isJa?'Travel Date':'旅行日';
+    document.getElementById('passLabel').textContent = isJa?'Passengers':'乗客数';
+    document.getElementById('discountLabel').textContent = isJa?'Discount Type':'割引タイプ';
+    document.getElementById('discNone').textContent = isJa?'None':'なし';
+    document.getElementById('discStudent').textContent = isJa?'Student (20% off)':'学生 (20%割引)';
+    document.getElementById('discPwd').textContent = isJa?'PWD (50% off)':'PWD (50%割引)';
+    document.getElementById('bookBtn').textContent = isJa?'Book Now':'今すぐ予約';
+    document.getElementById('bookNote').textContent = isJa?'*All fares include tax. Subject to availability.':'*全運賃は税込。空席状況による。';
+    lang = isJa ? 'en' : 'ja';
+    showFare();
+    calcBookingFare();
+}
+
+function toggleMenu(){ document.getElementById("menu").classList.toggle("active"); }
+function comingSoon(){ alert(lang==='ja'?'近日公開！':'Coming Soon!'); }
+
+function showSection(id){
+    document.getElementById("home").style.display=(id=='home')?'flex':'none';
+    document.getElementById("welcome-section").style.display=(id=='home')?'block':'none';
+    document.getElementById("fare").style.display=(id=='fare')?'block':'none';
+    document.getElementById("schedule").style.display='none';
+    document.getElementById("map-section").style.display='none';
+    document.getElementById("booking").style.display=(id=='booking')?'block':'none';
+    if(id=='schedule'){
+        document.getElementById("schedule").style.display='block';
+        document.getElementById("map-section").style.display='block';
+    }
+    if(id=='fare') showFare();
+}
+
+function showLogin(){ new bootstrap.Modal(document.getElementById('loginModal')).show(); }
+
+let profile=document.getElementById("profilePreview");
+let imgEl;
+document.getElementById("profileInput").addEventListener("change", e=>{
+    let reader=new FileReader();
+    reader.onload=function(){
+        profile.innerHTML="<img src='"+reader.result+"'>";
+        imgEl=profile.querySelector("img");
+        imgEl.style.top="0px"; imgEl.style.left="0px";
+    };
+    reader.readAsDataURL(e.target.files[0]);
+});
+let isDragging=false,startX,startY;
+profile.addEventListener("mousedown", e=>{ if(imgEl){ isDragging=true; startX=e.clientX; startY=e.clientY; } });
+document.addEventListener("mouseup", ()=>{ isDragging=false; });
+document.addEventListener("mousemove", e=>{
+    if(isDragging && imgEl){
+        let dx=e.clientX-startX, dy=e.clientY-startY;
+        let top=parseInt(imgEl.style.top||0)+dy;
+        let left=parseInt(imgEl.style.left||0)+dx;
+        imgEl.style.top=top+"px"; imgEl.style.left=left+"px";
+        startX=e.clientX; startY=e.clientY;
+    }
+});
+
+document.getElementById("registerForm").addEventListener("submit", e=>{
+    e.preventDefault();
+    let age=Number(document.getElementById("age").value);
+    let terms=document.getElementById("terms").checked;
+    if(age<18){ alert(lang==='ja'?'18歳以上である必要があります。':'You must be at least 18 years old.'); return; }
+    if(!terms){ alert(lang==='ja'?'規約に同意してください。':'You must accept terms.'); return; }
+    document.getElementById("loginBtn").innerHTML='<i class="bi bi-person"></i> '+(lang==='ja'?'アカウント':'Account');
+    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+});
+
+function showFare() {
+    const input = document.getElementById("fareInput").value.trim();
+    const tbody = document.getElementById("fareOutput");
+    tbody.innerHTML = "";
+    function studentPrice(price){ return Math.round(price*0.8); }
+    function pwdPrice(price){ return Math.round(price*0.5); }
+    const keys = Object.keys(fares);
+    let found = false;
+    keys.forEach(route => {
+        const routeText = lang==='ja' ? fares[route].ja : fares[route].en;
+        if(input==="" || (lang==='ja' ? routeText.includes(input) : routeText.toLowerCase().includes(input.toLowerCase()))) {
+            tbody.innerHTML += `<tr>
+                <td>${routeText}</td>
+                <td>¥${fares[route].price}</td>
+                <td>¥${studentPrice(fares[route].price)}</td>
+                <td>¥${pwdPrice(fares[route].price)}</td>
+            </tr>`;
+            found = true;
+        }
+    });
+    if(!found){
+        tbody.innerHTML = `<tr><td colspan="4">${lang==='ja'?'該当ルートが見つかりません。':'No matching routes found'}</td></tr>`;
+    }
+}
+
+const bookingFareMap = {
+    "東京_京都": 450, "大阪_広島": 480, "京都_奈良": 400,
+    "東京_大阪": 500, "北海道_東京": 550,
+    "京都_東京": 450, "広島_大阪": 480, "奈良_京都": 400,
+    "大阪_東京": 500, "東京_北海道": 550
+};
+
+function calcBookingFare(){
+    const pickup = document.getElementById('pickupSelect').value;
+    const dropoff = document.getElementById('dropoffSelect').value;
+    const passengers = parseInt(document.getElementById('numPassengers').value)||1;
+    const discount = document.getElementById('discountType').value;
+    const preview = document.getElementById('farePreview');
+    if(!pickup || !dropoff){
+        preview.textContent = lang==='ja'?'乗車駅と降車駅を選択してください。':'Select pickup and drop-off to see fare estimate.';
+        return;
+    }
+    if(pickup === dropoff){
+        preview.textContent = lang==='ja'?'乗車駅と降車駅が同じです。':'Pickup and drop-off cannot be the same.';
+        return;
+    }
+    const key1 = pickup+"_"+dropoff;
+    const key2 = dropoff+"_"+pickup;
+    let baseFare = bookingFareMap[key1] || bookingFareMap[key2];
+    if(!baseFare){
+        preview.textContent = lang==='ja'?'このルートの運賃は現在ご利用いただけません。':'Fare not available for this route.';
+        return;
+    }
+    let discountedFare = baseFare;
+    let discLabel = '';
+    if(discount === 'student'){ discountedFare = Math.round(baseFare*0.8); discLabel = lang==='ja'?' (学生20%割引)':' (Student 20% off)'; }
+    if(discount === 'pwd'){ discountedFare = Math.round(baseFare*0.5); discLabel = lang==='ja'?' (PWD50%割引)':' (PWD 50% off)'; }
+    const total = discountedFare * passengers;
+    const perPax = lang==='ja'?`¥${discountedFare}/人${discLabel}`:`¥${discountedFare}/person${discLabel}`;
+    const totalStr = lang==='ja'?`合計: ¥${total} (${passengers}名)`:`Total: ¥${total} (${passengers} passenger${passengers>1?'s':''})`;
+    preview.innerHTML = `${perPax}<br><strong>${totalStr}</strong>`;
+}
+
+function confirmBooking(){
+    const pickup = document.getElementById('pickupSelect').value;
+    const dropoff = document.getElementById('dropoffSelect').value;
+    const date = document.getElementById('travelDate').value;
+    const passengers = parseInt(document.getElementById('numPassengers').value)||1;
+    if(!pickup || !dropoff){ alert(lang==='ja'?'乗車駅と降車駅を選択してください。':'Please select pickup and drop-off stations.'); return; }
+    if(!date){ alert(lang==='ja'?'旅行日を選択してください。':'Please select a travel date.'); return; }
+    const details = document.getElementById('confirmDetails');
+    details.innerHTML = `
+        <p style="color:#555;font-size:15px;margin:6px 0;"><strong style="color:#e8609a;">${lang==='ja'?'乗車駅':'From'}:</strong> ${pickup}</p>
+        <p style="color:#555;font-size:15px;margin:6px 0;"><strong style="color:#e8609a;">${lang==='ja'?'降車駅':'To'}:</strong> ${dropoff}</p>
+        <p style="color:#555;font-size:15px;margin:6px 0;"><strong style="color:#e8609a;">${lang==='ja'?'旅行日':'Date'}:</strong> ${date}</p>
+        <p style="color:#555;font-size:15px;margin:6px 0;"><strong style="color:#e8609a;">${lang==='ja'?'乗客数':'Passengers'}:</strong> ${passengers}</p>
+        <div style="margin-top:12px;padding:14px;background:#fff5f8;border-radius:12px;text-align:center;color:#e8609a;font-size:16px;">${document.getElementById('farePreview').innerHTML}</div>
+    `;
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+}
+
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+let today = new Date();
+let currentMonth = today.getMonth();
+let currentYear = today.getFullYear();
+const monthYear = document.getElementById("monthYear");
+const calendarTable = document.getElementById("calendarTable");
+
+function renderCalendar(month, year){
+    monthYear.textContent = monthNames[month]+" "+year;
+    calendarTable.innerHTML = "";
+    let firstDay = new Date(year, month,1).getDay();
+    let daysInMonth = new Date(year, month+1,0).getDate();
+    let headerRow = document.createElement("tr");
+    ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d=>{
+        let th = document.createElement("th"); th.textContent=d; headerRow.appendChild(th);
+    });
+    calendarTable.appendChild(headerRow);
+    let date = 1;
+    for(let i=0;i<6;i++){
+        let row = document.createElement("tr");
+        for(let j=0;j<7;j++){
+            let cell = document.createElement("td");
+            if(i===0 && j<firstDay){ cell.textContent=""; }
+            else if(date>daysInMonth){ cell.textContent=""; }
+            else { cell.textContent=date; date++; }
+            row.appendChild(cell);
+        }
+        calendarTable.appendChild(row);
+    }
+}
+
+document.getElementById("prevMonth").addEventListener("click", ()=>{
+    currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(currentMonth,currentYear);
+});
+document.getElementById("nextMonth").addEventListener("click", ()=>{
+    currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(currentMonth,currentYear);
+});
+
+renderCalendar(currentMonth,currentYear);
+showFare();
+</script>
+</body>
+</html>
